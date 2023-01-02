@@ -31,6 +31,6 @@ io.on('connection', (socket)=>{
     })
 })
 
-server.listen(process.env.PORT || 3001, ()=>{
+server.listen(process.env.PORT || "https://chatbeta.onrender.com", ()=>{
     console.log("Server is running")
 })
