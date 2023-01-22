@@ -2,7 +2,6 @@ const express = require("express");
 const app = express();
 const http = require("http");
 const {Server} = require("socket.io")
-const client = require('./db')
 const fs = require('fs')
 const mongoose = require("mongoose")
 const BodyParser = require('body-parser')
