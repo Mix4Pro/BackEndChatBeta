@@ -64,7 +64,7 @@ io.on('connection', (socket)=>{
     })
 })
 
-server.listen("https://api.render.com/deploy/srv-cephp8en6mpkfa0t1rvg?key=6LhBFoaZlQw", ()=>{
+server.listen(process.env.HOST || 3001, ()=>{
     console.log("Server is running")
 })
 app.get('/chat-get-messages',async (req,res)=>{
