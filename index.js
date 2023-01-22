@@ -29,7 +29,7 @@ const io = new Server(server, {
 })
 
 
-mongoose.set('strictQuery', false);
+// mongoose.set('strictQuery', false);
 mongoose.connect(
     'mongodb+srv://user:user@cluster0.pbwjquf.mongodb.net/?retryWrites=true&w=majority',
     {useNewUrlParser: true,useUnifiedTopology: true}
@@ -64,7 +64,7 @@ io.on('connection', (socket)=>{
     })
 })
 
-server.listen(process.env.HOST || 3001,()=>{
+server.listen(process.env.HOST || 1000,()=>{
     console.log("Server is running")
 })
 app.get('/chat-get-messages',async (req,res)=>{
