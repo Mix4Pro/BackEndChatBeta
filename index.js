@@ -19,8 +19,6 @@ app.use(cors())
 
 let currentUser;
 
-"https://chatbeta.onrender.com"
-
 const server = http.createServer(app)
 // origin: "https://wonderful-moxie-2a9d5c.netlify.app",
 
@@ -69,7 +67,7 @@ io.on('connection', (socket)=>{
     })
 })
 
-server.listen("https://chatbeta.onrender.com", ()=>{
+server.listen("https://api.render.com/deploy/srv-cephp8en6mpkfa0t1rvg?key=6LhBFoaZlQw", ()=>{
     console.log("Server is running")
 })
 app.get('/chat-get-messages',async (req,res)=>{
