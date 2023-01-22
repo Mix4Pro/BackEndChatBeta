@@ -69,7 +69,7 @@ server.listen("https://back-end-chat-beta.vercel.app/" || 10000,()=>{
 })
 app.get('/chat-get-messages',async (req,res)=>{
     let messages = await Messages.find({})
-    res.status(200).json(messages)
+    res.status(200).send(messages)
 })
 app.get('/chat-get-username',(req,res)=>{
     SignIn.findOne({
@@ -82,8 +82,7 @@ app.get('/chat-get-username',(req,res)=>{
             if(data !== null){
                 let usernameFromData = data.username
                 console.log(usernameFromData) 
-                // res.status(200).send(`${usernameFromData}`)
-                res.status(200).json(usernameFromData)
+                res.status(200).send(`${usernameFromData}`)
             }else{
                 res.sendStatus(303)
             }
