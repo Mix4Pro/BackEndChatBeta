@@ -64,7 +64,7 @@ io.on('connection', (socket)=>{
     })
 })
 
-server.listen(process.env.HOST, ()=>{
+server.listen(process.env.HOST || 10000,()=>{
     console.log("Server is running")
 })
 app.get('/chat-get-messages',async (req,res)=>{
