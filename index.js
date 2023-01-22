@@ -30,7 +30,7 @@ const io = new Server(server, {
 })
 
 
-
+mongoose.set("strictQuery", false);
 mongoose.connect(
     'mongodb+srv://user:user@cluster0.pbwjquf.mongodb.net/?retryWrites=true&w=majority',
     {useNewUrlParser: true,useUnifiedTopology: true}
@@ -49,9 +49,6 @@ const messagesSchema = new mongoose.Schema({
 
 const SignIn = mongoose.model('SignIn', signinSchema)
 const Messages = mongoose.model('Message', messagesSchema)
-
-mongoose.set('strictQuery', false);
-
 io.on('connection', (socket)=>{
     console.log(`User : ${socket.id} connected`)
     socket.on("login", (username,socketID)=>{
