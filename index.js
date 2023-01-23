@@ -64,7 +64,7 @@ io.on('connection', (socket)=>{
     })
 })
 
-server.listen(3001,()=>{
+server.listen(3001,cors(),()=>{
     console.log("Server is running")
 })
 app.get('/chat-get-messages',async (req,res)=>{
