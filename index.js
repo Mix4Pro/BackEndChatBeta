@@ -15,6 +15,7 @@ app.use(BodyParser.urlencoded({extended:false}))
 app.use(BodyParser.urlencoded({ extended: true }));
 app.use(BodyParser.json())
 app.use(cors())
+
 let currentUser;
 
 const server = http.createServer(app)
@@ -22,8 +23,9 @@ const server = http.createServer(app)
 
 const io = new Server(server, {
     cors:{
-        origin: "https://frontchatbeta.netlify.app",
-        mathods: ["GET", "POST"]
+        origin: "https://frontchatbeta.netlify.app/",
+        mathods: ["GET", "POST"],
+        allowedHeaders: ['Access-Control-Allow-Origin']
     }
 })
 
@@ -112,8 +114,6 @@ app.post('/', (req,res)=>{
         username: req.body.username,
         password: req.body.password
     }
-
-    console.log("HERE IS LOGIN XD")
 
     SignIn.findOne({
         username: user.username,
