@@ -20,10 +20,11 @@ let currentUser;
 
 const server = http.createServer(app)
 // origin: "https://wonderful-moxie-2a9d5c.netlify.app",
+// https://frontchatbeta.netlify.app
 
 const io = new Server(server, {
     cors:{
-        origin: "https://frontchatbeta.netlify.app",
+        origin: "http://localhost:3000",
         mathods: ["GET", "POST"],
     }
 })
