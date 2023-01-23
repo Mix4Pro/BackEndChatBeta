@@ -24,8 +24,7 @@ const server = http.createServer(app)
 const io = new Server(server, {
     cors:{
         origin: "https://wonderful-moxie-2a9d5c.netlify.app",
-        mathods: ["GET", "POST"],
-        allowedHeaders: ['Access-Control-Allow-Origin']
+        mathods: ["GET", "POST"]
     }
 })
 
