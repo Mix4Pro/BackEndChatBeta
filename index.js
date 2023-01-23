@@ -24,7 +24,7 @@ const server = http.createServer(app)
 
 const io = new Server(server, {
     cors:{
-        origin: "http://localhost:3000",
+        origin: "https://frontchatbeta.netlify.app",
         mathods: ["GET", "POST"],
     }
 })
@@ -67,7 +67,6 @@ io.on('connection', (socket)=>{
 
 server.listen(3001,()=>{
     console.log("Server is running")
-    console.log(io)
 })
 app.get('/chat-get-messages',async (req,res)=>{
     let messages = await Messages.find({})
