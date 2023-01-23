@@ -23,7 +23,7 @@ const server = http.createServer(app)
 
 const io = new Server(server, {
     cors:{
-        origin: "https://wonderful-moxie-2a9d5c.netlify.app",
+        origin: "https://frontchatbeta.netlify.app",
         mathods: ["GET", "POST"]
     }
 })
