@@ -24,6 +24,7 @@ const server = http.createServer(app)
 const io = new Server(server, {
     cors:{
         origin: "https://frontchatbeta.netlify.app",
+        port: 3001,
         mathods: ["GET", "POST"],
         allowedHeaders: ['Access-Control-Allow-Origin']
     }
