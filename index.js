@@ -25,7 +25,7 @@ const server = http.createServer(app)
 const io = new Server(server, {
     cors:{
         origin: "https://frontchatbeta.netlify.app",
-        mathods: ["GET", "POST"],
+        methods: ["GET", "POST"]
     }
 })
 
