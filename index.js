@@ -115,6 +115,8 @@ app.post('/', (req,res)=>{
         password: req.body.password
     }
 
+    console.log("POST WORKS")
+
     SignIn.findOne({
         username: user.username,
         password: user.password
