@@ -14,7 +14,10 @@ const { send } = require("process");
 app.use(BodyParser.urlencoded({extended:false}))
 app.use(BodyParser.urlencoded({ extended: true }));
 app.use(BodyParser.json())
-app.use(cors())
+app.use(cors({
+    origin: '*',
+    methods: ["GET", "POST"]
+}))
 
 let currentUser;
 
@@ -25,7 +28,7 @@ const server = http.createServer(app)
 const io = new Server(server, {
     cors:{
         origin: "https://frontchatbeta.netlify.app/chat",
-        methods: ["GET", "POST"],
+        methods: ["GET", "POST"]
     }
 })
 
