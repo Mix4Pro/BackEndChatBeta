@@ -11,6 +11,7 @@ const { Console } = require("console");
 const pg = require('pg')
 const { Sign } = require("crypto");
 const { send } = require("process");
+const { application } = require("express");
 app.use(BodyParser.urlencoded({extended:false}))
 app.use(BodyParser.urlencoded({ extended: true }));
 app.use(BodyParser.json())
@@ -50,23 +51,28 @@ const messagesSchema = new mongoose.Schema({
 const SignIn = mongoose.model('SignIn', signinSchema)
 const Messages = mongoose.model('Message', messagesSchema)
 
-// io.on('connection', (socket)=>{
-//     console.log(`User : ${socket.id} connected`)
-//     socket.on("login", (username,socketID)=>{
-//         socket.emit("parse_user", `${username}`, `${socketID}`);
-//     })
+io.on('connection', (socket)=>{
+    console.log(`User : ${socket.id} connected`)
+    socket.on("login", (username,socketID)=>{
+        socket.emit("parse_user", `${username}`, `${socketID}`);
+    })
 
-//     socket.on('send_message', (data)=>{
-//         socket.broadcast.emit('recieve_message', data)
-//     })
+    socket.on('send_message', (data)=>{
+        socket.broadcast.emit('recieve_message', data)
+    })
 
-//     socket.on('disconnect', ()=>{
-//         console.log(`User : ${socket.id} disconnected`)
-//     })
-// })
+    socket.on('disconnect', ()=>{
+        console.log(`User : ${socket.id} disconnected`)
+    })
+})
 
 server.listen(3001,()=>{
     console.log("Server is running")
+})
+app.get('/', (req,res)=>{
+    Messages.find({},(data)=>{
+        res.status(200).send(`${data}`)
+    })
 })
 app.get('/chat-get-messages',async (req,res)=>{
     let messages = await Messages.find({})
