@@ -13,6 +13,19 @@ app.use(BodyParser.json())
 
 let currentUser;
 
+const corsOpts = {
+    origin: 'https://frontchatbeta.netlify.app',
+  
+    methods: [
+      'GET',
+      'POST',
+    ],
+  
+    allowedHeaders: [
+      'Content-Type',
+    ],
+  };
+
 const server = http.createServer(app)
 // origin: "https://wonderful-moxie-2a9d5c.netlify.app",
 // https://frontchatbeta.netlify.app
@@ -24,7 +37,7 @@ const io = new Server(server, {
     }
 })
 
-app.use(cors())
+app.use(cors(corsOpts))
 
 
 mongoose.set('strictQuery', false);
