@@ -2,19 +2,14 @@ const express = require("express");
 const app = express();
 const http = require("http");
 const {Server} = require("socket.io")
-const fs = require('fs')
+// const fs = require('fs')
 const mongoose = require("mongoose")
 const BodyParser = require('body-parser')
 require("dotenv").config()
 const cors = require('cors');
-const { Console } = require("console");
-const pg = require('pg')
-const { Sign } = require("crypto");
-const { send } = require("process");
 app.use(BodyParser.urlencoded({extended:false}))
 app.use(BodyParser.urlencoded({ extended: true }));
 app.use(BodyParser.json())
-app.use(cors())
 
 let currentUser;
 
@@ -28,6 +23,8 @@ const io = new Server(server, {
         methods: ["GET", "POST"]
     }
 })
+
+app.use(cors())
 
 
 mongoose.set('strictQuery', false);
