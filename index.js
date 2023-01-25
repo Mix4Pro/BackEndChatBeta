@@ -10,21 +10,9 @@ const cors = require('cors');
 app.use(BodyParser.urlencoded({extended:false}))
 app.use(BodyParser.urlencoded({ extended: true }));
 app.use(BodyParser.json())
+app.use(cors())
 
 let currentUser;
-
-const corsOpts = {
-    origin: 'https://frontchatbeta.netlify.app',
-  
-    methods: [
-      'GET',
-      'POST',
-    ],
-  
-    allowedHeaders: [
-      'Content-Type',
-    ],
-  };
 
 const server = http.createServer(app)
 // origin: "https://wonderful-moxie-2a9d5c.netlify.app",
@@ -33,11 +21,9 @@ const server = http.createServer(app)
 const io = new Server(server, {
     cors:{
         origin: "https://frontchatbeta.netlify.app",
-        methods: ["GET", "POST"]
+        methods: ["GET", "POST"],
     }
 })
-
-app.use(cors(corsOpts))
 
 
 mongoose.set('strictQuery', false);
@@ -124,8 +110,6 @@ app.post('/', (req,res)=>{
         username: req.body.username,
         password: req.body.password
     }
-
-    console.log("POST WORKS")
 
     SignIn.findOne({
         username: user.username,
