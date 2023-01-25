@@ -2,11 +2,15 @@ const express = require("express");
 const app = express();
 const http = require("http");
 const {Server} = require("socket.io")
-// const fs = require('fs')
+const fs = require('fs')
 const mongoose = require("mongoose")
 const BodyParser = require('body-parser')
 require("dotenv").config()
 const cors = require('cors');
+const { Console } = require("console");
+const pg = require('pg')
+const { Sign } = require("crypto");
+const { send } = require("process");
 app.use(BodyParser.urlencoded({extended:false}))
 app.use(BodyParser.urlencoded({ extended: true }));
 app.use(BodyParser.json())
@@ -20,7 +24,7 @@ const server = http.createServer(app)
 
 const io = new Server(server, {
     cors:{
-        origin: "*",
+        origin: "https://frontchatbeta.netlify.app",
         methods: ["GET", "POST"],
     }
 })
@@ -46,20 +50,20 @@ const messagesSchema = new mongoose.Schema({
 const SignIn = mongoose.model('SignIn', signinSchema)
 const Messages = mongoose.model('Message', messagesSchema)
 
-io.on('connection', (socket)=>{
-    console.log(`User : ${socket.id} connected`)
-    socket.on("login", (username,socketID)=>{
-        socket.emit("parse_user", `${username}`, `${socketID}`);
-    })
+// io.on('connection', (socket)=>{
+//     console.log(`User : ${socket.id} connected`)
+//     socket.on("login", (username,socketID)=>{
+//         socket.emit("parse_user", `${username}`, `${socketID}`);
+//     })
 
-    socket.on('send_message', (data)=>{
-        socket.broadcast.emit('recieve_message', data)
-    })
+//     socket.on('send_message', (data)=>{
+//         socket.broadcast.emit('recieve_message', data)
+//     })
 
-    socket.on('disconnect', ()=>{
-        console.log(`User : ${socket.id} disconnected`)
-    })
-})
+//     socket.on('disconnect', ()=>{
+//         console.log(`User : ${socket.id} disconnected`)
+//     })
+// })
 
 server.listen(3001,()=>{
     console.log("Server is running")
@@ -89,13 +93,27 @@ app.get('/chat-get-username',(req,res)=>{
     console.log("Chat") 
 })
 
+app.post('/chat-insert-message',(req,res)=>{
+    let message = {
+        author: req.body.author,
+        message: req.body.message,
+        date: req.body.date
+    }
+    Messages.collection.insertOne(message,(err)=>{
+        if(err){
+            console.log(err)
+        }else{
+            console.log("Message is inserted to the DataBase XD")
+        }
+    })
+
+    res.sendStatus(200)
+})
 app.post('/', (req,res)=>{
     let user = {
         username: req.body.username,
         password: req.body.password
     }
-
-    console.log("It is connected dude !")
 
     SignIn.findOne({
         username: user.username,
@@ -112,23 +130,6 @@ app.post('/', (req,res)=>{
             }
         }
     })
-})
-
-app.post('/chat-insert-message',(req,res)=>{
-    let message = {
-        author: req.body.author,
-        message: req.body.message,
-        date: req.body.date
-    }
-    Messages.collection.insertOne(message,(err)=>{
-        if(err){
-            console.log(err)
-        }else{
-            console.log("Message is inserted to the DataBase XD")
-        }
-    })
-
-    res.sendStatus(200)
 })
 
 app.post('/registration',(req,res)=>{
