@@ -89,27 +89,13 @@ app.get('/chat-get-username',(req,res)=>{
     console.log("Chat") 
 })
 
-app.post('/chat-insert-message',(req,res)=>{
-    let message = {
-        author: req.body.author,
-        message: req.body.message,
-        date: req.body.date
-    }
-    Messages.collection.insertOne(message,(err)=>{
-        if(err){
-            console.log(err)
-        }else{
-            console.log("Message is inserted to the DataBase XD")
-        }
-    })
-
-    res.sendStatus(200)
-})
 app.post('/', (req,res)=>{
     let user = {
         username: req.body.username,
         password: req.body.password
     }
+
+    console.log("It is connected dude !")
 
     SignIn.findOne({
         username: user.username,
@@ -126,6 +112,23 @@ app.post('/', (req,res)=>{
             }
         }
     })
+})
+
+app.post('/chat-insert-message',(req,res)=>{
+    let message = {
+        author: req.body.author,
+        message: req.body.message,
+        date: req.body.date
+    }
+    Messages.collection.insertOne(message,(err)=>{
+        if(err){
+            console.log(err)
+        }else{
+            console.log("Message is inserted to the DataBase XD")
+        }
+    })
+
+    res.sendStatus(200)
 })
 
 app.post('/registration',(req,res)=>{
