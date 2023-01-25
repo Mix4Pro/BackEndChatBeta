@@ -11,7 +11,6 @@ const { Console } = require("console");
 const pg = require('pg')
 const { Sign } = require("crypto");
 const { send } = require("process");
-const { application } = require("express");
 app.use(BodyParser.urlencoded({extended:false}))
 app.use(BodyParser.urlencoded({ extended: true }));
 app.use(BodyParser.json())
@@ -25,7 +24,7 @@ const server = http.createServer(app)
 
 const io = new Server(server, {
     cors:{
-        origin: "https://frontchatbeta.netlify.app",
+        origin: "https://frontchatbeta.netlify.app/chat",
         methods: ["GET", "POST"],
     }
 })
@@ -68,11 +67,6 @@ io.on('connection', (socket)=>{
 
 server.listen(3001,()=>{
     console.log("Server is running")
-})
-app.get('/', (req,res)=>{
-    Messages.find({},(data)=>{
-        res.status(200).send(`${data}`)
-    })
 })
 app.get('/chat-get-messages',async (req,res)=>{
     let messages = await Messages.find({})
