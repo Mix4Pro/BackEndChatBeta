@@ -158,12 +158,12 @@ app.post('/registration',(req,res)=>{
                         currentUser = regUser.username
                         res.sendStatus(200)
                     }
-                })
+                })  
             }
         }
     })
 })
-
+1
 app.get('/delete', (req,res)=>{
     SignIn.deleteMany((query)=>{
         console.log('Accounts have been deleted')
