@@ -14,6 +14,12 @@ const { send } = require("process");
 app.use(BodyParser.urlencoded({extended:false}))
 app.use(BodyParser.urlencoded({ extended: true }));
 app.use(BodyParser.json())
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
 app.use(cors({
     origin: '*',
     methods: ["GET", "POST"]
@@ -47,7 +53,7 @@ const signinSchema = new mongoose.Schema({
 const messagesSchema = new mongoose.Schema({
     author: String,
     message: String,
-    date: Number
+    date: String
 })
 
 const SignIn = mongoose.model('SignIn', signinSchema)
@@ -75,26 +81,26 @@ app.get('/chat-get-messages',async (req,res)=>{
     let messages = await Messages.find({})
     res.status(200).send(messages)
 })
-app.get('/chat-get-username',(req,res)=>{
-    SignIn.findOne({
-        username: currentUser
-    },(err,data)=>{
-        if(err){
-            res.sendStatus(303)
-        }else{
-            console.log("LETS GO CHAT !")
-            if(data !== null){
-                let usernameFromData = data.username
-                console.log(usernameFromData) 
-                res.status(200).send(`${usernameFromData}`)
-            }else{
-                res.sendStatus(303)
-            }
-        }
-    })
+// app.get('/chat-get-username',(req,res)=>{
+//     SignIn.findOne({
+//         username: currentUser
+//     },(err,data)=>{
+//         if(err){
+//             res.sendStatus(303)
+//         }else{
+//             console.log("LETS GO CHAT !")
+//             if(data !== null){
+//                 let usernameFromData = data.username
+//                 console.log(usernameFromData) 
+//                 res.status(200).send(`${usernameFromData}`)
+//             }else{
+//                 res.sendStatus(303)
+//             }
+//         }
+//     })
 
-    console.log("Chat") 
-})
+//     console.log("Chat") 
+// })
 
 app.post('/chat-insert-message',(req,res)=>{
     let message = {
