@@ -53,7 +53,8 @@ const signinSchema = new mongoose.Schema({
 const messagesSchema = new mongoose.Schema({
     author: String,
     message: String,
-    date: String
+    date: String,
+    image: String
 })
 
 const SignIn = mongoose.model('SignIn', signinSchema)
@@ -65,8 +66,8 @@ io.on('connection', (socket)=>{
         socket.emit("parse_user", `${username}`, `${socketID}`);
     })
 
-    socket.on('send_message', (data)=>{
-        socket.broadcast.emit('recieve_message', data)
+    socket.on('send_message', (messages)=>{
+        socket.broadcast.emit('recieve_message', messages)
     })
 
     socket.on('disconnect', ()=>{
@@ -81,49 +82,12 @@ app.get('/chat-get-messages',async (req,res)=>{
     let messages = await Messages.find({})
     res.status(200).send(messages)
 })
-// app.get('/chat-get-username',(req,res)=>{
-//     SignIn.findOne({
-//         username: currentUser
-//     },(err,data)=>{
-//         if(err){
-//             res.sendStatus(303)
-//         }else{
-//             console.log("LETS GO CHAT !")
-//             if(data !== null){
-//                 let usernameFromData = data.username
-//                 console.log(usernameFromData) 
-//                 res.status(200).send(`${usernameFromData}`)
-//             }else{
-//                 res.sendStatus(303)
-//             }
-//         }
-//     })
 
-//     console.log("Chat") 
-// })
-
-app.post('/chat-insert-message',(req,res)=>{
-    let message = {
-        author: req.body.author,
-        message: req.body.message,
-        date: req.body.date
-    }
-    Messages.collection.insertOne(message,(err)=>{
-        if(err){
-            console.log(err)
-        }else{
-            console.log("Message is inserted to the DataBase XD")
-        }
-    })
-
-    res.sendStatus(200)
-})
 app.post('/', (req,res)=>{
     let user = {
         username: req.body.username,
         password: req.body.password
     }
-
     SignIn.findOne({
         username: user.username,
         password: user.password
@@ -139,6 +103,24 @@ app.post('/', (req,res)=>{
             }
         }
     })
+})
+
+app.post('/chat-insert-message',(req,res)=>{
+    let message = {
+        author: req.body.author,
+        message: req.body.message,
+        date: req.body.date,
+        image: req.body.image
+    }
+    Messages.collection.insertOne(message,(err)=>{
+        if(err){
+            console.log(err)
+        }else{
+            console.log("Message is inserted to the DataBase XD")
+        }
+    })
+
+    res.sendStatus(200)
 })
 
 app.post('/registration',(req,res)=>{
