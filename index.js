@@ -28,8 +28,11 @@ app.use(cors({
 let currentUser;
 
 const server = http.createServer(app)
-// origin: "https://wonderful-moxie-2a9d5c.netlify.app",
+// origin: "https://wonderful-moxie-2a9d5c.netlify.app", 
+// mongodb+srv://user:user@cluster0.pbwjquf.mongodb.net/?retryWrites=true&w=majority
 // https://frontchatbeta.netlify.app
+
+//     {useNewUrlParser: true,useUnifiedTopology: true}
 
 const io = new Server(server, {
     cors:{
@@ -41,7 +44,7 @@ const io = new Server(server, {
 
 mongoose.set('strictQuery', false);
 mongoose.connect(
-    'mongodb+srv://user:user@cluster0.pbwjquf.mongodb.net/?retryWrites=true&w=majority',
+    'mongodb+srv://mix4pro:12345678910@cluster0.mmrqmaj.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0',
     {useNewUrlParser: true,useUnifiedTopology: true}
 )
 
