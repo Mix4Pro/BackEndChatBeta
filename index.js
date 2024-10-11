@@ -7,9 +7,7 @@ const mongoose = require("mongoose")
 const BodyParser = require('body-parser')
 require("dotenv").config()
 const cors = require('cors');
-const pg = require('pg')
 const crypto = require("crypto");
-const { send } = require("process");
 require('dotenv').config()
 app.use(BodyParser.urlencoded({extended:false}))
 app.use(BodyParser.urlencoded({ extended: true }));
@@ -83,7 +81,7 @@ io.on('connection', (socket)=>{
 
 
 let passwordEncrypt = (password) =>{
-    let cipher = crypto.createCipheriv('aes-256-cbc',key,iv)
+    let cipher = crypto.createCipheriv('aes-256-cbc',process.env.KEY,iv)
     let encrypted_password = cipher.update(password,'utf-8','hex')
     encrypted_password += cipher.final('hex')
 
@@ -221,7 +219,7 @@ app.get('/encrypt',(req,res)=>{
             console.log(data.length)
             if(data !== null && data.length !== 0){
                 data.forEach((val)=>{
-                    let decipher = crypto.createDecipheriv('aes-256-cbc',key,iv)
+                    let decipher = crypto.createDecipheriv('aes-256-cbc',process.env.KEY,iv)
                     let decrypt = decipher.update(val.password,'hex','utf-8')
                     decrypt += decipher.final("utf-8")
     
