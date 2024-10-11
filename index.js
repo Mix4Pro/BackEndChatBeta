@@ -81,7 +81,7 @@ io.on('connection', (socket)=>{
 
 
 let passwordEncrypt = (password) =>{
-    let cipher = crypto.createCipheriv('aes-256-cbc',process.env.KEY,iv)
+    let cipher = crypto.createCipheriv('aes-256-cbc',key,iv)
     let encrypted_password = cipher.update(password,'utf-8','hex')
     encrypted_password += cipher.final('hex')
 
@@ -219,7 +219,7 @@ app.get('/encrypt',(req,res)=>{
             console.log(data.length)
             if(data !== null && data.length !== 0){
                 data.forEach((val)=>{
-                    let decipher = crypto.createDecipheriv('aes-256-cbc',process.env.KEY,iv)
+                    let decipher = crypto.createDecipheriv('aes-256-cbc',key,iv)
                     let decrypt = decipher.update(val.password,'hex','utf-8')
                     decrypt += decipher.final("utf-8")
     
