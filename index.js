@@ -7,10 +7,10 @@ const mongoose = require("mongoose")
 const BodyParser = require('body-parser')
 require("dotenv").config()
 const cors = require('cors');
-const { Console } = require("console");
 const pg = require('pg')
-const { Sign } = require("crypto");
+const crypto = require("crypto");
 const { send } = require("process");
+require('dotenv').config()
 app.use(BodyParser.urlencoded({extended:false}))
 app.use(BodyParser.urlencoded({ extended: true }));
 app.use(BodyParser.json())
@@ -26,6 +26,9 @@ app.use(cors({
 }))
 
 let currentUser;
+let key = process.env.KEY
+// let iv = crypto.randomBytes(Number(process.env.IV_NUMBER))
+let iv = Buffer.alloc(16,0)
 
 const server = http.createServer(app)
 // origin: "https://wonderful-moxie-2a9d5c.netlify.app", 
@@ -78,18 +81,59 @@ io.on('connection', (socket)=>{
     })
 })
 
+
+let passwordEncrypt = (password) =>{
+    let cipher = crypto.createCipheriv('aes-256-cbc',key,iv)
+    let encrypted_password = cipher.update(password,'utf-8','hex')
+    encrypted_password += cipher.final('hex')
+
+    return encrypted_password
+}
+
 server.listen(3001,()=>{
     console.log("Server is running")
 })
+// app.get('/',(req,res)=>{
+
+//     // let cipher = crypto.createCipheriv('aes-256-cbc',key,iv)
+//     // let encrypted = cipher.update(name,'utf-8','hex')
+//     // encrypted += cipher.final('hex')
+    
+//     SignIn.find(async (err,data)=>{
+//         if(err){
+//             console.log(err)
+//         }else{
+//             if(data !== null){
+//                 // SignIn.updateOne(data.usernm)
+
+//                 await data.forEach(async (val)=>{
+//                     let cipher = crypto.createCipheriv('aes-256-cbc',key,iv)
+//                     let encrypted_password = cipher.update(val.password,'utf-8','hex')
+//                     encrypted_password += cipher.final('hex')
+//                     console.log(val.username,encrypted_password)
+//                     await SignIn.updateOne({username:val.username},{
+//                         $set:{
+//                             password: encrypted_password
+//                         }
+//                     })
+//                 })
+//             }else{
+//                 res.sendStatus(303)
+//             }
+//         }
+//     })   
+// })
 app.get('/chat-get-messages',async (req,res)=>{
     let messages = await Messages.find({})
     res.status(200).send(messages)
 })
 
 app.post('/', (req,res)=>{
+    let encryptedPassword_LOG_IN = passwordEncrypt(req.body.password)
+    console.log(encryptedPassword_LOG_IN)
     let user = {
         username: req.body.username,
-        password: req.body.password
+        password: encryptedPassword_LOG_IN
     }
     SignIn.findOne({
         username: user.username,
@@ -127,9 +171,11 @@ app.post('/chat-insert-message',(req,res)=>{
 })
 
 app.post('/registration',(req,res)=>{
+    let encryptedPassword_SIGN_IN = passwordEncrypt(req.body.password)
+    console.log(encryptedPassword_SIGN_IN)
     let regUser = {
         username: req.body.username,
-        password: req.body.password
+        password: encryptedPassword_SIGN_IN
     }
     
     SignIn.findOne({
@@ -162,5 +208,30 @@ app.get('/delete', (req,res)=>{
 
     Messages.deleteMany((query)=>{
         console.log('Messages have been deleted')
+    })
+
+    res.send(['Accounts have been deleted','Messages have been deleted'])
+})
+
+app.get('/encrypt',(req,res)=>{
+    SignIn.find((err,data)=>{
+        if(err){
+            console.log(err)
+        }else{
+            console.log(data.length)
+            if(data !== null && data.length !== 0){
+                data.forEach((val)=>{
+                    let decipher = crypto.createDecipheriv('aes-256-cbc',key,iv)
+                    let decrypt = decipher.update(val.password,'hex','utf-8')
+                    decrypt += decipher.final("utf-8")
+    
+                    console.log(decrypt)
+                    
+                    res.send(`${val.username} : ${decrypt}`)
+                })
+            }else{
+                res.send(404)
+            }
+        }
     })
 })
