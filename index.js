@@ -1,14 +1,17 @@
-const express = require("express");
+import express from "express";
+import http from "http";
+import {Server} from "socket.io";
+import mongoose from "mongoose";
+import BodyParser from "body-parser";
+import cors from "cors";
+import crypto from "crypto";
+import dotenv from "dotenv";
+import SignInModule from "./modules/SignInModule.js";
+import MessagesModule from "./modules/MessagesModule.js";
+import MessagesController from "./controllers/MessagesController.js";
+import CryptoServices from "./services/CryptoServices.js";
+dotenv.config();
 const app = express();
-const http = require("http");
-const {Server} = require("socket.io")
-const fs = require('fs')
-const mongoose = require("mongoose")
-const BodyParser = require('body-parser')
-require("dotenv").config()
-const cors = require('cors');
-const crypto = require("crypto");
-require('dotenv').config()
 app.use(BodyParser.urlencoded({extended:false}))
 app.use(BodyParser.urlencoded({ extended: true }));
 app.use(BodyParser.json())
@@ -48,21 +51,6 @@ mongoose.connect(
     'mongodb+srv://mix4pro:12345678910@cluster0.mmrqmaj.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0',
     {useNewUrlParser: true,useUnifiedTopology: true}
 )
-
-const signinSchema = new mongoose.Schema({
-    username: String,
-    password: String
-})
-
-const messagesSchema = new mongoose.Schema({
-    author: String,
-    message: String,
-    date: String,
-    image: String
-})
-
-const SignIn = mongoose.model('SignIn', signinSchema)
-const Messages = mongoose.model('Message', messagesSchema)
 
 io.on('connection', (socket)=>{
     console.log(`User : ${socket.id} connected`)
@@ -122,18 +110,19 @@ server.listen(3001,()=>{
 //     })   
 // })
 app.get('/chat-get-messages',async (req,res)=>{
-    let messages = await Messages.find({})
-    res.status(200).send(messages)
+    let messages = await MessagesController.getAllMessages(req,res);
+
+    res.status(200).send(messages);
 })
 
 app.post('/', (req,res)=>{
-    let encryptedPassword_LOG_IN = passwordEncrypt(req.body.password)
+    let encryptedPassword_LOG_IN = CryptoServices(req.body.password)
     console.log(encryptedPassword_LOG_IN)
     let user = {
         username: req.body.username,
         password: encryptedPassword_LOG_IN
     }
-    SignIn.findOne({
+    SignInModule.findOne({
         username: user.username,
         password: user.password
     },(err,data)=>{
@@ -141,31 +130,19 @@ app.post('/', (req,res)=>{
             console.log(err)
         }else{
             if(data !== null){
-                res.sendStatus(200)
-                currentUser = data.username
+                res.status(200).json("Access");
+                currentUser = data.username;
             }else{
-                res.sendStatus(303)
+                res.status(303).json("Username Or Password Is Incorrect");
             }
         }
     })
 })
 
-app.post('/chat-insert-message',(req,res)=>{
-    let message = {
-        author: req.body.author,
-        message: req.body.message,
-        date: req.body.date,
-        image: req.body.image
-    }
-    Messages.collection.insertOne(message,(err)=>{
-        if(err){
-            console.log(err)
-        }else{
-            console.log("Message is inserted to the DataBase XD")
-        }
-    })
+app.post('/chat-insert-message',async (req,res)=>{
+    await MessagesController.insertOneMessage(req,res);
 
-    res.sendStatus(200)
+    res.status(200).json("Inserted SUCCESSFULLY");
 })
 
 app.post('/registration',(req,res)=>{
@@ -176,7 +153,7 @@ app.post('/registration',(req,res)=>{
         password: encryptedPassword_SIGN_IN
     }
     
-    SignIn.findOne({
+    SignInModule.findOne({
         username: regUser.username
     },(err,data)=>{
         if(err){
@@ -185,7 +162,7 @@ app.post('/registration',(req,res)=>{
             if(data !== null){
                 res.sendStatus(303)
             }else{
-                SignIn.collection.insertOne(regUser,(err)=>{
+                SignInModule.collection.insertOne(regUser,(err)=>{
                     if(err){
                         console.log(err)
                     }else{
@@ -200,11 +177,11 @@ app.post('/registration',(req,res)=>{
 })
 1
 app.get('/delete', (req,res)=>{
-    SignIn.deleteMany((query)=>{
+    SignInModule.deleteMany((query)=>{
         console.log('Accounts have been deleted')
     })
 
-    Messages.deleteMany((query)=>{
+    MessagesModule.deleteMany((query)=>{
         console.log('Messages have been deleted')
     })
 
@@ -212,23 +189,26 @@ app.get('/delete', (req,res)=>{
 })
 
 app.get('/encrypt',(req,res)=>{
-    SignIn.find((err,data)=>{
+    SignInModule.find((err,data)=>{
         if(err){
             console.log(err)
         }else{
             console.log(data.length)
             if(data !== null && data.length !== 0){
+                let decryptedArray = [];
                 data.forEach((val)=>{
                     let decipher = crypto.createDecipheriv('aes-256-cbc',key,iv)
                     let decrypt = decipher.update(val.password,'hex','utf-8')
                     decrypt += decipher.final("utf-8")
-    
-                    console.log(decrypt)
-                    
-                    res.send(`${val.username} : ${decrypt}`)
+                    let username = val.username;
+                    let password = decrypt;
+
+                    decryptedArray.push({username,password});
+                    console.log(decryptedArray);
                 })
+                res.status(200).send("Data is decrypted");
             }else{
-                res.send(404)
+                res.sendStatus(404);
             }
         }
     })
