@@ -4,12 +4,12 @@ import {Server} from "socket.io";
 import mongoose from "mongoose";
 import BodyParser from "body-parser";
 import cors from "cors";
-import crypto from "crypto";
 import dotenv from "dotenv";
 import SignInModule from "./modules/SignInModule.js";
 import MessagesModule from "./modules/MessagesModule.js";
 import MessagesController from "./controllers/MessagesController.js";
-import CryptoServices from "./services/CryptoServices.js";
+import DecryptServices from "./services/DecryptServices.js";
+import SignInController from "./controllers/SignInController.js";
 dotenv.config();
 const app = express();
 app.use(BodyParser.urlencoded({extended:false}))
@@ -27,9 +27,7 @@ app.use(cors({
 }))
 
 let currentUser;
-let key = process.env.KEY
 // let iv = crypto.randomBytes(Number(process.env.IV_NUMBER))
-let iv = Buffer.alloc(16,0)
 
 const server = http.createServer(app)
 // origin: "https://wonderful-moxie-2a9d5c.netlify.app", 
@@ -66,15 +64,6 @@ io.on('connection', (socket)=>{
         console.log(`User : ${socket.id} disconnected`)
     })
 })
-
-
-let passwordEncrypt = (password) =>{
-    let cipher = crypto.createCipheriv('aes-256-cbc',key,iv)
-    let encrypted_password = cipher.update(password,'utf-8','hex')
-    encrypted_password += cipher.final('hex')
-
-    return encrypted_password
-}
 
 server.listen(3001,()=>{
     console.log("Server is running")
@@ -115,28 +104,13 @@ app.get('/chat-get-messages',async (req,res)=>{
     res.status(200).send(messages);
 })
 
-app.post('/', (req,res)=>{
-    let encryptedPassword_LOG_IN = CryptoServices(req.body.password)
-    console.log(encryptedPassword_LOG_IN)
-    let user = {
-        username: req.body.username,
-        password: encryptedPassword_LOG_IN
+app.post('/', async (req,res)=>{
+    let user = await SignInController.signIn(req,res);
+    if(user){
+        res.status(200).json("Access");
+    }else{
+        res.status(303).json("Username Or Password Is Incorrect");
     }
-    SignInModule.findOne({
-        username: user.username,
-        password: user.password
-    },(err,data)=>{
-        if(err){
-            console.log(err)
-        }else{
-            if(data !== null){
-                res.status(200).json("Access");
-                currentUser = data.username;
-            }else{
-                res.status(303).json("Username Or Password Is Incorrect");
-            }
-        }
-    })
 })
 
 app.post('/chat-insert-message',async (req,res)=>{
@@ -145,37 +119,16 @@ app.post('/chat-insert-message',async (req,res)=>{
     res.status(200).json("Inserted SUCCESSFULLY");
 })
 
-app.post('/registration',(req,res)=>{
-    let encryptedPassword_SIGN_IN = passwordEncrypt(req.body.password)
-    console.log(encryptedPassword_SIGN_IN)
-    let regUser = {
-        username: req.body.username,
-        password: encryptedPassword_SIGN_IN
+app.post('/registration',async (req,res)=>{
+    let data = await SignInController.signUp(req,res);
+    if(data == 1){
+        res.status(200).json("You are registered");
+    }else if(data == 2){
+        res.status(404).json("Error");
+    }else{
+        res.status(303).json("Account is already created");
     }
-    
-    SignInModule.findOne({
-        username: regUser.username
-    },(err,data)=>{
-        if(err){
-            console.log(err)
-        }else{
-            if(data !== null){
-                res.sendStatus(303)
-            }else{
-                SignInModule.collection.insertOne(regUser,(err)=>{
-                    if(err){
-                        console.log(err)
-                    }else{
-                        console.log("Data is inserted")
-                        currentUser = regUser.username
-                        res.sendStatus(200)
-                    }
-                })  
-            }
-        }
-    })
 })
-1
 app.get('/delete', (req,res)=>{
     SignInModule.deleteMany((query)=>{
         console.log('Accounts have been deleted')
@@ -196,13 +149,8 @@ app.get('/encrypt',(req,res)=>{
             console.log(data.length)
             if(data !== null && data.length !== 0){
                 let decryptedArray = [];
-                data.forEach((val)=>{
-                    let decipher = crypto.createDecipheriv('aes-256-cbc',key,iv)
-                    let decrypt = decipher.update(val.password,'hex','utf-8')
-                    decrypt += decipher.final("utf-8")
-                    let username = val.username;
-                    let password = decrypt;
-
+                data.forEach(async (val)=>{
+                    let [username,password] = await DecryptServices(val);
                     decryptedArray.push({username,password});
                     console.log(decryptedArray);
                 })
